@@ -1,34 +1,30 @@
-name: Notificacao Inteligente
+name: Notificacao Inteligente Conventional
 on: [push]
 
 jobs:
   notificar:
     runs-on: ubuntu-latest
     steps:
-      - name: Definir Cor e Impacto
+      - name: Analisar Mensagem e Definir Estilo
         id: vars
         run: |
+          # Pega a mensagem do commit e converte para minúsculas para comparar
           MSG="${{ github.event.head_commit.message }}"
-          # Se a mensagem tiver as palavras 'impacto' ou 'alerta', fica Amarelo (0xf1c40f)
-          # Caso contrário, fica Verde (0x2ecc71)
-          if [[ $(echo "$MSG" | tr '[:upper:]' '[:lower:]') == *"impacto"* || $(echo "$MSG" | tr '[:upper:]' '[:lower:]') == *"alerta"* ]]; then
-            echo "COLOR=15844367" >> $GITHUB_OUTPUT
-            echo "EMOJI=⚠️ IMPACTO DETECTADO" >> $GITHUB_OUTPUT
+          LOW_MSG=$(echo "$MSG" | tr '[:upper:]' '[:lower:]')
+          
+          # Lógica de Cores e Emojis baseada em Conventional Commits
+          if [[ $LOW_MSG == feat* ]]; then
+            echo "COLOR=3066993" >> $GITHUB_OUTPUT # Verde (Sucesso/Novo)
+            echo "EMOJI=🚀 NOVA FUNCIONALIDADE" >> $GITHUB_OUTPUT
+          elif [[ $LOW_MSG == fix* ]]; then
+            echo "COLOR=15158332" >> $GITHUB_OUTPUT # Vermelho (Correção)
+            echo "EMOJI=🛠️ CORREÇÃO DE BUG" >> $GITHUB_OUTPUT
+          elif [[ $LOW_MSG == refactor* || $LOW_MSG == *"impacto"* || $LOW_MSG == *"alerta"* ]]; then
+            echo "COLOR=15844367" >> $GITHUB_OUTPUT # Amarelo (Alerta)
+            echo "EMOJI=⚠️ MUDANÇA DE IMPACTO" >> $GITHUB_OUTPUT
+          elif [[ $LOW_MSG == docs* || $LOW_MSG == chore* ]]; then
+            echo "COLOR=3447003" >> $GITHUB_OUTPUT # Azul (Ajuste Técnico)
+            echo "EMOJI=📝 DOCUMENTAÇÃO / SETUP" >> $GITHUB_OUTPUT
           else
-            echo "COLOR=3066993" >> $GITHUB_OUTPUT
-            echo "EMOJI=✅ Alteração de Rotina" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Enviar para o Discord
-        uses: sarisia/actions-status-discord@v1
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ job.status }}
-          title: "${{ steps.vars.outputs.EMOJI }}"
-          description: |
-            **Desenvolvedor:** ${{ github.actor }}
-            **O que mudou:** ${{ github.event.head_commit.message }}
-          color: ${{ steps.vars.outputs.COLOR }}
-          username: "Central de Updates"
-
-        
+            echo "COLOR=9807270" >> $GITHUB_OUTPUT # Cinza (Outros)
+            echo "EMOJI=🔄
