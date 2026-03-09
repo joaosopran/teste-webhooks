@@ -27,4 +27,23 @@ jobs:
             echo "EMOJI=📝 DOCUMENTAÇÃO / SETUP" >> $GITHUB_OUTPUT
           else
             echo "COLOR=9807270" >> $GITHUB_OUTPUT # Cinza (Outros)
-            echo "EMOJI=🔄
+            echo "EMOJI=🔄 ATUALIZAÇÃO GERAL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Enviar para o Discord
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "${{ steps.vars.outputs.EMOJI }}"
+          description: |
+            **Desenvolvedor:** ${{ github.actor }}
+            **Repositório:** ${{ github.repository }}
+            
+            **O que mudou:**
+            `${{ github.event.head_commit.message }}`
+            
+            [Ver alteração no GitHub](${{ github.event.head_commit.url }})
+          color: ${{ steps.vars.outputs.COLOR }}
+          username: "Dev Tracker 🤖"
+          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
