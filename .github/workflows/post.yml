@@ -1,0 +1,13 @@
+name: Notificar Discord
+on: [push]
+
+jobs:
+  discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar Mensagem
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK }}
+          username: "Central de Updates 🚀"
+          message: "### ✨ Novo Update Realizado!\n**Dev:** ${{ github.actor }}\n**O que mudou:** ${{ github.event.head_commit.message }}\n\n✅ Sistema Atualizado."
