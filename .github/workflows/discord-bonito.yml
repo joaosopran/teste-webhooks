@@ -1,20 +1,32 @@
-name: Notificacao Customizada
+name: Notificacao Inteligente
 on: [push]
 
 jobs:
-  build:
+  notificar:
     runs-on: ubuntu-latest
     steps:
-      - name: Enviar Embed para o Discord
+      - name: Definir Cor e Impacto
+        id: vars
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+          # Se a mensagem tiver as palavras 'impacto' ou 'alerta', fica Amarelo (0xf1c40f)
+          # Caso contrário, fica Verde (0x2ecc71)
+          if [[ $(echo "$MSG" | tr '[:upper:]' '[:lower:]') == *"impacto"* || $(echo "$MSG" | tr '[:upper:]' '[:lower:]') == *"alerta"* ]]; then
+            echo "COLOR=15844367" >> $GITHUB_OUTPUT
+            echo "EMOJI=⚠️ IMPACTO DETECTADO" >> $GITHUB_OUTPUT
+          else
+            echo "COLOR=3066993" >> $GITHUB_OUTPUT
+            echo "EMOJI=✅ Alteração de Rotina" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Enviar para o Discord
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
-          title: "🚀 Novo Update no Projeto!"
+          title: "${{ steps.vars.outputs.EMOJI }}"
           description: |
             **Desenvolvedor:** ${{ github.actor }}
-            **Mensagem:** ${{ github.event.head_commit.message }}
-            **Repositório:** ${{ github.repository }}
-          color: 0x2ecc71 # Verde esmeralda
+            **O que mudou:** ${{ github.event.head_commit.message }}
+          color: ${{ steps.vars.outputs.COLOR }}
           username: "Central de Updates"
-          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
