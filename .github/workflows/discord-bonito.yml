@@ -47,3 +47,4 @@ jobs:
           color: ${{ steps.vars.outputs.COLOR }}
           username: "Dev Tracker 🤖"
           avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+
