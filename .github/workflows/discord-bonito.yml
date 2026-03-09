@@ -1,0 +1,20 @@
+name: Notificacao Customizada
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar Embed para o Discord
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "🚀 Novo Update no Projeto!"
+          description: |
+            **Desenvolvedor:** ${{ github.actor }}
+            **Mensagem:** ${{ github.event.head_commit.message }}
+            **Repositório:** ${{ github.repository }}
+          color: 0x2ecc71 # Verde esmeralda
+          username: "Central de Updates"
+          avatar_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
